@@ -1,6 +1,6 @@
 # Hyperspectral → multispectral → QNN
 
-Builds the preprocessing pipeline from Siwei's 16 Jul email — reduce hyperspectral
+Builds the preprocessing pipeline set out in the project brief — reduce hyperspectral
 imagery to its informative bands, produce a multispectral stack, run the QNN change
 detection on it — and asks what that reduction costs and buys.
 
@@ -79,7 +79,7 @@ classes, but the values aren't comparable to standard NDVI products.
 | `pipeline.py` | Loading, proxy task, NDVI, RGB, band selection (MI / F-score / PCA / uniform / decorrelated) |
 | `qnn.py` | Rybotycki architecture: perceptron → amplitude embedding → 3× SimplifiedTwoDesign → ⟨Z⟩ → sigmoid |
 | `run_experiment.py` | Band sweep over k ∈ {4,8,16,32,64} × 3 seeds → `results.json` |
-| `make_figures.py` | `fig_pipeline.png` (Siwei's 3 subplots), `fig_scaling.png` |
+| `make_figures.py` | `fig_pipeline.png` (the brief's 3 subplots), `fig_scaling.png` |
 | `POSTER_DESIGN.md` | Poster brief — **cost figures predate the correction above** |
 
 ## Reproduce
@@ -95,7 +95,7 @@ unzip -o -j ../HybridSN-master.zip "HybridSN-master/data/PaviaU*.mat" -d data/
 
 ## Not done
 
-- **Qiskit alongside PennyLane** (Siwei's objective 2 — why simulators disagree).
+- **Qiskit alongside PennyLane** (project objective 2 — why simulators disagree).
   The analytic/shot distinction is the likely answer and is a short experiment:
   same weights, `shots=None` vs `shots=1024`.
 - **Real bi-temporal change detection.** Needs an image pair; OSCD/ONERA or a
@@ -104,4 +104,4 @@ unzip -o -j ../HybridSN-master.zip "HybridSN-master/data/PaviaU*.mat" -d data/
 - **Hardware run.** Everything here is noiseless simulation.
 
 Sources are open: Pavia University via the HybridSN repo, arXiv 2503.08962v3,
-Zenodo 14784888. Nothing from the NGA internal share.
+Zenodo 14784888.

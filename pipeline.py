@@ -1,7 +1,7 @@
 """
 Hyperspectral -> band selection -> multispectral -> QNN.
 
-Implements the preprocessing pipeline Siwei described: reduce a hyperspectral
+Implements the preprocessing pipeline set out in the project brief: reduce a hyperspectral
 cube to a small set of informative bands, producing a multispectral stack that
 the QNN change-detection code can consume.
 

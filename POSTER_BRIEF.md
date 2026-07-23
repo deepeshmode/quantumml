@@ -159,8 +159,9 @@ invert its own units — its spreadsheet computes samples per minute, giving
 28 s and roughly $45 per sample rather than the 2 min 13 s stated.
 
 Then, in small type: sources — Rybotycki, Gupta & Gawron, arXiv:2503.08962v3;
-Zenodo 14784888; Pavia University (ROSIS); EPRI; TrendForce. Acknowledgment to
-Siwei Qiu. A QR code to the code repository, small, bottom right.
+Zenodo 14784888; Pavia University (ROSIS); EPRI; TrendForce. Add an
+acknowledgments line naming your project supervisor. A QR code to the code
+repository, small, bottom right.
 
 ### Final checks
 

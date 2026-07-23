@@ -9,7 +9,7 @@
 
 Krawec (FAS, 05.12.26) establishes the analytic problem: EO satellite imagery is **best suited to tracking data center construction over time** — an 8-stage taxonomy (site clearing → data hall planning → foundation → steel framing → roofing → cladding → HVAC/substations/cooling → commissioning). Her two case studies (Khazna Ajman, xAI Colossus) are done by hand, one site at a time. That doesn't scale to a global buildout.
 
-Automated pixel-level change detection on multispectral imagery is the obvious fix. Siwei's resource set points at a specific route: the QNN change-detection work of Rybotycki, Gupta & Gawron (arXiv 2503.08962v3), its Zenodo artifacts (record 14784888), the ONERA/OSCD dataset, Qiskit/PennyLane, and OLCF Frontier for simulation.
+Automated pixel-level change detection on multispectral imagery is the obvious fix. The project's resource set points at a specific route: the QNN change-detection work of Rybotycki, Gupta & Gawron (arXiv 2503.08962v3), its Zenodo artifacts (record 14784888), the ONERA/OSCD dataset, Qiskit/PennyLane, and OLCF Frontier for simulation.
 
 **The poster asks: does the quantum route actually help this mission today?** The defensible answer from the resources is *no, and here is the quantified reason* — which is a stronger poster than a hand-wavy "quantum promises speedup." It is falsifiable, policy-relevant, and buildable in an hour because the underlying numbers already exist and are real.
 
@@ -70,4 +70,4 @@ F4 is the one at risk — PennyLane install and OSCD patch extraction can eat th
 
 ## 5. Open question for you
 
-The FAS paper is public and cites public case studies; the Zenodo/arXiv material is open. Everything above draws only on those. Siwei also mentioned project data on an internal share — **nothing from there is in this design, and it shouldn't go on the poster without a release check.** Confirm the poster is cleared as fully open-source-derived before printing.
+The FAS paper is public and cites public case studies; the Zenodo/arXiv material is open. Everything above draws only on those. **Confirm the poster is cleared as fully open-source-derived before printing.**

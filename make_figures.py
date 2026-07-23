@@ -1,7 +1,7 @@
 """
 Figures.
 
-fig_pipeline.png  - the three subplots Siwei asked for: QNN schematic with the
+fig_pipeline.png  - the three subplots the project brief calls for: QNN schematic with the
                     pipeline, exploration of the imagery, and the result of
                     running the model on it.
 fig_scaling.png   - accuracy against band count, over the hardware
