@@ -69,7 +69,7 @@ def panel_schematic(ax, k, n_qubits):
     y, h = 0.58, 0.36
     stages = [
         (0.005, 0.150, "Hyperspectral", "103 bands\n430-860 nm", MUTED, MUTED),
-        (0.185, 0.150, "Band select", "decorrelated\nmutual info", MUTED, MUTED),
+        (0.185, 0.150, "Band select", "uniform\nspacing", MUTED, MUTED),
         (0.365, 0.150, "Multispectral", f"k = {k} bands", C_A, C_A),
         (0.545, 0.150, "Perceptron", f"{k} -> {2**n_qubits}", C_C, C_C),
         (0.725, 0.270, "Quantum layer", f"{n_qubits} qubits", C_Q, C_Q),
@@ -176,10 +176,17 @@ def panel_result(ax_map, ax_hist, cube, gt, pred_map, acc, hist):
     ax_hist.set_xlim(0.5, len(hist) + 0.5)
 
 
-def figure_pipeline(k=16):
+def figure_pipeline(k=16, method="uniform"):
+    """
+    Uniform selection by default: the sweep in run_experiment.py shows it beats
+    decorrelated MI at every k >= 16, so the showcase figure should use the
+    method that wins. Using decorr here would report a different accuracy at the
+    same k than fig_scaling does.
+    """
     cube, gt = load_pavia()
     X, y = binary_task(cube, gt)
-    idx = select_bands_decorrelated(X, y, k, "mi")
+    idx = (select_bands(X, y, k, "uniform") if method == "uniform"
+           else select_bands_decorrelated(X, y, k, "mi"))
     n_qubits = int(np.log2(k))
 
     Xtr, ytr, Xte, yte = split(X[:, idx], y, seed=0)
