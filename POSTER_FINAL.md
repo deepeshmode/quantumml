@@ -60,9 +60,10 @@ painted-metal and bitumen classes this model separates.*
 A 103-band hyperspectral cube is reduced by uniform band selection to a 16-band
 multispectral stack, which feeds a hybrid model: a classical perceptron,
 amplitude embedding, three SimplifiedTwoDesign layers, and a single-qubit
-measurement. Amplitude embedding packs *k* bands into log₂*k* qubits, so band
-selection sets circuit width directly — a preprocessing choice that propagates
-into hardware cost.
+measurement. This is an independent implementation of the architecture described
+in Rybotycki et al., not a run of their published code. Amplitude embedding
+packs *k* bands into log₂*k* qubits, so band selection sets circuit width
+directly — a preprocessing choice that propagates into hardware cost.
 
 Pavia University stands in as a proxy. No public hyperspectral scene exists over
 a hyperscale data centre, and this scene's material classes — painted metal
@@ -105,6 +106,10 @@ change detection over a real data centre. All results are noiseless simulation;
 nothing ran on quantum hardware. CNOT counts are modelled for exact amplitude
 embedding rather than measured, because the simulator applies state preparation
 in a single operation and hides the term entirely. Three seeds per point.
+
+The classical baseline here is logistic regression. A geospatial foundation
+model — Scale-MAE, arXiv:2212.14532 — is the stronger comparison, and is the
+next benchmark rather than a demonstrated result.
 
 One arithmetic note: the source paper's per-sample cost inverts its own
 spreadsheet's units, which compute samples per minute — implying 28 s and

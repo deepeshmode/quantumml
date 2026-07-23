@@ -121,9 +121,17 @@ unzip -o -j ../HybridSN-master.zip "HybridSN-master/data/PaviaU*.mat" -d data/
 
 ## Not done
 
-- **Real bi-temporal change detection.** Needs an image pair; OSCD/ONERA or a
-  Sentinel-2 pair over a named data center site would do it. Both STAC endpoints
-  (Planetary Computer, Earth Search) are reachable.
+- **Reproducing the published result.** This is an independent implementation of
+  the architecture from the paper's description, on a different dataset — not a
+  run of `Tomev/qnn_change_detection` or the Zenodo code. The Zenodo *data* is
+  used (training curves, the cost spreadsheet); the code is not.
+- **Real bi-temporal change detection.** `Tomev/qnn_change_detection` runs on
+  OSCD/ONERA image pairs, so reproducing it closes this and the item above
+  together. That is the next priority. A Sentinel-2 pair over a named data
+  center site is the alternative; both STAC endpoints (Planetary Computer,
+  Earth Search) are reachable.
+- **A foundation-model baseline.** Logistic regression is the only classical
+  comparison here. Scale-MAE (arXiv:2212.14532) is the stronger one.
 - **Hardware run.** Everything here is noiseless simulation.
 
 Sources are open: Pavia University via the HybridSN repo, arXiv 2503.08962v3,
