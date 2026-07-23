@@ -1,0 +1,12 @@
+# Virtualenv
+.venv/
+__pycache__/
+*.pyc
+
+# Third-party datasets - not ours to redistribute.
+# Extract from the HybridSN repo instead; see README.
+data/
+*.mat
+
+# macOS
+.DS_Store
