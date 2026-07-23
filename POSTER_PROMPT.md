@@ -73,10 +73,22 @@ National Geospatial-Intelligence Agency · 23 July 2026
 
 ## Column 1
 
+### Why anyone watches data centres
+
+Data centres are the physical substrate of AI capability — no frontier model
+gets trained without one — and what companies announce about them routinely
+diverges from what gets built. Case studies at Khazna's Ajman facility and xAI's
+Memphis site both found gaps between public statements and observable
+construction, and unpermitted equipment installed at Memphis was discovered from
+overhead imagery, not from filings. Announcements, permits and press releases
+cannot be relied on alone.
+
+Imagery is the independent check. That makes tracking build-out a verification
+problem — and verification across many sites and many revisits means automation.
+
 ### Which construction stages leave a spectral signature
 
-Hyperscale data centre construction is one of the few AI-infrastructure signals
-observable from orbit. Identifying the compute itself is not realistic — AI
+Identifying the compute itself is not realistic — AI
 hardware shares halls with general-purpose servers, carries no distinguishing
 visual signature, and accounts for only 10–20% of data centre power. What is
 tractable is detecting change across repeat imagery.

@@ -43,15 +43,44 @@ plt.rcParams.update({
 })
 
 
+_FS = 1.0
+
+
+def fs(p):
+    """Point size, scaled for the figure currently being drawn."""
+    return p * _FS
+
+
+def print_fonts(fig_width_in, placed_mm, target_pt=20):
+    """
+    rcParams that put a figure's text at target_pt once printed.
+
+    A figure authored at fig_width_in and placed at placed_mm on the poster is
+    scaled by placed_mm / (fig_width_in * 25.4). Point sizes scale with it, so
+    authoring at a fixed 9 pt gives wildly different printed text depending on
+    placement - which is how figure text ends up illegible on an A0 sheet even
+    at 600 dpi.
+    """
+    scale = placed_mm / (fig_width_in * 25.4)
+    base = target_pt / scale
+    return {
+        "font.size": base, "axes.labelsize": base,
+        "axes.titlesize": base * 1.15, "xtick.labelsize": base * 0.9,
+        "ytick.labelsize": base * 0.9, "legend.fontsize": base * 0.9,
+        "lines.linewidth": max(2.0, base * 0.22),
+        "lines.markersize": max(6.0, base * 0.6),
+    }
+
+
 def _box(ax, x, y, w, h, label, sub, face, edge, textcol="#ffffff"):
     ax.add_patch(FancyBboxPatch(
         (x, y), w, h, boxstyle="round,pad=0.012,rounding_size=0.02",
         facecolor=face, edgecolor=edge, linewidth=1.4))
     ax.text(x + w / 2, y + h * 0.72, label, ha="center", va="center",
-            fontsize=8.5, fontweight="bold", color=textcol)
+            fontsize=fs(8.5), fontweight="bold", color=textcol)
     if sub:
         ax.text(x + w / 2, y + h * 0.27, sub, ha="center", va="center",
-                fontsize=7, color=textcol, linespacing=1.35)
+                fontsize=fs(7), color=textcol, linespacing=1.35)
 
 
 def _arrow(ax, x0, x1, y):
@@ -66,7 +95,7 @@ def panel_schematic(ax, k, n_qubits):
     ax.set_title("A.  Pipeline and quantum circuit", loc="left",
                  fontweight="bold", color=INK)
 
-    y, h = 0.58, 0.36
+    y, h = 0.62, 0.34
     stages = [
         (0.005, 0.150, "Hyperspectral", "103 bands\n430-860 nm", MUTED, MUTED),
         (0.185, 0.150, "Band select", "uniform\nspacing", MUTED, MUTED),
@@ -80,19 +109,19 @@ def panel_schematic(ax, k, n_qubits):
         _arrow(ax, x0, x1, y + h / 2)
 
     # Circuit detail beneath the quantum-layer box.
-    cy0, cy1 = 0.06, 0.44
+    cy0, cy1 = 0.05, 0.46
     wires = np.linspace(cy1, cy0, n_qubits)
     for i, wy in enumerate(wires):
         ax.plot([0.30, 0.905], [wy, wy], color=INK2, linewidth=1.0, zorder=1)
         ax.text(0.285, wy, f"$q_{i}$", ha="right", va="center",
-                fontsize=7.5, color=INK2)
+                fontsize=fs(7.5), color=INK2)
 
     ax.add_patch(FancyBboxPatch(
         (0.335, cy0 - 0.035), 0.16, (cy1 - cy0) + 0.07,
         boxstyle="round,pad=0.006,rounding_size=0.015",
         facecolor=C_A, edgecolor=C_A, alpha=0.9, zorder=2))
     ax.text(0.415, (cy0 + cy1) / 2, "Amplitude\nembedding", ha="center",
-            va="center", fontsize=7.5, fontweight="bold", color="#ffffff", zorder=3)
+            va="center", fontsize=fs(7.5), fontweight="bold", color="#ffffff", zorder=3)
 
     for j in range(3):
         bx = 0.545 + j * 0.135
@@ -101,22 +130,22 @@ def panel_schematic(ax, k, n_qubits):
             boxstyle="round,pad=0.006,rounding_size=0.015",
             facecolor=C_Q, edgecolor=C_Q, alpha=0.92, zorder=2))
         ax.text(bx + 0.0575, (cy0 + cy1) / 2, f"STD\n{j+1}", ha="center",
-                va="center", fontsize=7.5, fontweight="bold",
+                va="center", fontsize=fs(7.5), fontweight="bold",
                 color="#ffffff", zorder=3)
 
     ax.add_patch(FancyBboxPatch(
         (0.905, wires[0] - 0.045), 0.058, 0.09,
         boxstyle="round,pad=0.004,rounding_size=0.012",
         facecolor=SURFACE, edgecolor=INK, linewidth=1.3, zorder=4))
-    ax.text(0.934, wires[0], "Z", ha="center", va="center", fontsize=8,
+    ax.text(0.934, wires[0], "Z", ha="center", va="center", fontsize=fs(8),
             fontweight="bold", color=INK, zorder=5)
     ax.text(0.934, wires[0] - 0.062, r"$\langle Z\rangle \to \sigma$",
-            ha="center", va="top", fontsize=7.5, color=INK2)
+            ha="center", va="top", fontsize=fs(7.5), color=INK2)
 
     ax.text(0.005, -0.02,
             f"Amplitude embedding packs k={k} bands into "
             f"$\\log_2 k$ = {n_qubits} qubits, so band selection sets circuit width.",
-            fontsize=7.5, color=INK2, va="top")
+            fontsize=fs(7.5), color=INK2, va="top")
 
 
 def panel_imagery(axes, cube, gt, sel_idx):
@@ -132,7 +161,7 @@ def panel_imagery(axes, cube, gt, sel_idx):
     ax_ndvi.axis("off"); ax_ndvi.grid(False)
     ax_ndvi.set_title("NDVI\n ", loc="left", fontweight="bold", color=INK)
     cb = plt.colorbar(im, ax=ax_ndvi, fraction=0.055, pad=0.04)
-    cb.ax.tick_params(labelsize=7, colors=INK2)
+    cb.ax.tick_params(labelsize=fs(7), colors=INK2)
     cb.outline.set_edgecolor(GRID)
 
     wl = wavelengths(cube.shape[-1])
@@ -146,11 +175,11 @@ def panel_imagery(axes, cube, gt, sel_idx):
     ax_spec.set_ylabel("Mean reflectance (scaled)")
     ax_spec.set_title("Class spectra; grey lines = selected bands",
                       loc="left", fontweight="bold", color=INK)
-    ax_spec.legend(loc="upper left", fontsize=8)
+    ax_spec.legend(loc="upper left", fontsize=fs(8))
     ax_spec.set_xlim(wl[0], wl[-1])
 
 
-def panel_result(ax_map, ax_hist, cube, gt, pred_map, acc, hist):
+def panel_result(ax_map, cube, gt, pred_map, acc, hist):
     """Subplot 3: the model run on the imagery."""
     H, W = gt.shape
     disp = np.full((H, W, 3), 0.94)
@@ -162,18 +191,8 @@ def panel_result(ax_map, ax_hist, cube, gt, pred_map, acc, hist):
                      loc="left", fontweight="bold", color=INK)
     ax_map.scatter([], [], c=C_Q, s=40, label="Built / disturbed")
     ax_map.scatter([], [], c=C_C, s=40, label="Vegetation")
-    ax_map.legend(loc="upper center", bbox_to_anchor=(0.5, -0.02),
-                  ncol=1, fontsize=8)
-
-    ep = np.arange(1, len(hist) + 1)
-    ax_hist.plot(ep, np.array(hist) * 100, color=C_Q, linewidth=2.0,
-                 marker="o", markersize=4)
-    ax_hist.set_xlabel("Epoch"); ax_hist.set_ylabel("Test accuracy (%)")
-    ax_hist.set_title("Training", loc="left", fontweight="bold", color=INK)
-    ax_hist.annotate(f"{hist[-1]*100:.1f}%", xy=(ep[-1], hist[-1] * 100),
-                     xytext=(-6, -12), textcoords="offset points",
-                     fontsize=8, color=INK, fontweight="bold", ha="right")
-    ax_hist.set_xlim(0.5, len(hist) + 0.5)
+    ax_map.legend(loc="upper center", bbox_to_anchor=(0.5, -0.01),
+                  ncol=1, fontsize=fs(7), handletextpad=0.5)
 
 
 def figure_pipeline(k=16, method="uniform"):
@@ -202,44 +221,31 @@ def figure_pipeline(k=16, method="uniform"):
     pred_map = np.zeros(gt.shape, dtype=int)
     pred_map[labeled] = (p > 0.5).astype(int)
 
-    fig = plt.figure(figsize=(16, 11))
-    gs = fig.add_gridspec(3, 4, height_ratios=[0.70, 1.45, 1.45],
-                          width_ratios=[0.62, 0.62, 1.05, 1.00],
-                          hspace=0.34, wspace=0.46)
-    panel_schematic(fig.add_subplot(gs[0, :]), k, n_qubits)
-    panel_imagery([fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1]),
-                   fig.add_subplot(gs[1, 2:])], cube, gt, idx)
-    panel_result(fig.add_subplot(gs[2, 0]), fig.add_subplot(gs[2, 1:3]),
-                 cube, gt, pred_map, acc, hist)
+    # Portrait, to match the poster column it sits in. A landscape figure has to
+    # be scaled down to fit a 195 mm column, which is what made the scene images
+    # small; this shape lets them render large.
+    # Spans the full poster width as a band, so it is scaled UP in print rather
+    # than down - which is what keeps the internal text legible at A0 and lets
+    # the three scene images render large.
+    global _FS
+    W_IN, PLACED_MM = 19, 713
+    _FS = 1.52
+    with plt.rc_context(print_fonts(W_IN, PLACED_MM, target_pt=18)):
+        fig = plt.figure(figsize=(W_IN, 10))
+        gs = fig.add_gridspec(2, 4, height_ratios=[0.88, 2.4],
+                              width_ratios=[0.52, 0.52, 0.52, 1.25],
+                              hspace=0.14, wspace=0.34)
+        panel_schematic(fig.add_subplot(gs[0, :]), k, n_qubits)
+        panel_imagery([fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1]),
+                       fig.add_subplot(gs[1, 3])], cube, gt, idx)
+        panel_result(fig.add_subplot(gs[1, 2]), cube, gt, pred_map, acc, hist)
 
-    ax_txt = fig.add_subplot(gs[2, 3]); ax_txt.axis("off"); ax_txt.grid(False)
-    wl = wavelengths(cube.shape[-1])
-    import textwrap
-    band_str = ", ".join(f"{v:.0f}" for v in wl[idx])
-    wrapped = textwrap.wrap(band_str, width=36, break_long_words=False)
-    lines = [("Selected bands (nm)", True)]
-    lines += [("", False)] + [(w, False) for w in wrapped]
-    lines += [
-        ("", False),
-        (f"{cube.shape[2]} bands -> {k}  ({100*(1-k/cube.shape[2]):.0f}% reduction)", False),
-        (f"Qubits: {n_qubits}   Quantum params: {2*n_qubits + n_qubits*(2*3)}", False),
-        ("", False),
-        ("Pavia University (ROSIS). Material", False),
-        ("classes stand in for a data centre", False),
-        ("campus: painted metal sheets, asphalt,", False),
-        ("bitumen, gravel, bare soil. Built vs.", False),
-        ("vegetation is the signal that stage-1", False),
-        ("site clearing produces.", False),
-    ]
-    for i, (t, bold) in enumerate(lines):
-        ax_txt.text(0, 0.99 - i * 0.062, t, fontsize=8.2, va="top",
-                    color=INK if bold else INK2,
-                    fontweight="bold" if bold else "normal")
-
-    fig.suptitle(
-        "Hyperspectral to multispectral to QNN: built-surface change detection",
-        x=0.008, ha="left", fontsize=13, fontweight="bold", color=INK)
-    fig.savefig("fig_pipeline.png", dpi=600, bbox_inches="tight")
+        fig.suptitle(
+            "Hyperspectral to multispectral to QNN: built-surface classification",
+            x=0.006, y=0.998, ha="left", fontsize=fs(13), fontweight="bold",
+            color=INK)
+        fig.savefig("fig_pipeline.png", dpi=500, bbox_inches="tight")
+    _FS = 1.0
     print(f"fig_pipeline.png  (k={k}, acc={acc:.4f})")
     return acc
 
@@ -276,30 +282,30 @@ def figure_scaling():
                  f"({meta['classical_acc_all_bands']*100:.1f}%)",
                  xy=(ks[0], meta["classical_acc_all_bands"] * 100),
                  xytext=(2, 6), textcoords="offset points",
-                 fontsize=7.6, color=INK2, ha="left")
+                 fontsize=fs(7.6), color=INK2, ha="left")
 
     knee = next(x for x in runs if x["method"] == "uniform" and x["k"] == 16)
     peak = max((x for x in runs if x["method"] == "uniform"),
                key=lambda x: x["acc_mean"])
     ax1.annotate(f"k=16\n{knee['acc_mean']*100:.1f}%",
                  xy=(16, knee["acc_mean"] * 100), xytext=(7, -6),
-                 textcoords="offset points", fontsize=8.2, fontweight="bold",
+                 textcoords="offset points", fontsize=fs(8.2), fontweight="bold",
                  color=INK, ha="left", va="top")
     ax1.annotate(f"k={peak['k']}\n{peak['acc_mean']*100:.1f}%",
                  xy=(peak["k"], peak["acc_mean"] * 100), xytext=(0, 9),
-                 textcoords="offset points", fontsize=8.2, fontweight="bold",
+                 textcoords="offset points", fontsize=fs(8.2), fontweight="bold",
                  color=INK, ha="center")
     ax1.set_ylabel("Test accuracy (%)")
     ax1.set_ylim(89.3, 96.6)
     ax1.set_title("Accuracy plateaus at 16-32 bands, then falls", loc="left",
                   fontweight="bold", color=INK)
-    ax1.legend(loc="lower right", fontsize=8)
+    ax1.legend(loc="lower right", fontsize=fs(8))
 
     cn = series("uniform", "stateprep_cnots_hw")
     ax2.plot(ks, cn, color=C_Q, linewidth=2.0, marker="o", markersize=6, zorder=3)
     for k, v in zip(ks, cn):
         ax2.annotate(f"{v}", xy=(k, v), xytext=(0, 7),
-                     textcoords="offset points", fontsize=8, color=INK2,
+                     textcoords="offset points", fontsize=fs(8), color=INK2,
                      ha="center")
     ax2.set_ylabel("State-prep CNOTs (modeled)")
     ax2.set_xlabel("Bands retained,  k   (qubits = $\\log_2 k$)")
@@ -310,13 +316,13 @@ def figure_scaling():
     ax2.set_ylim(0, max(cn) * 1.25)
 
     fig.suptitle("Band count sets both accuracy and circuit cost",
-                 x=0.012, ha="left", fontsize=12.5, fontweight="bold", color=INK)
+                 x=0.012, ha="left", fontsize=fs(12.5), fontweight="bold", color=INK)
     fig.text(0.012, 0.005,
              f"Pavia University, built vs. vegetation. Mean +/- s.d. over "
              f"{len(meta['seeds'])} seeds. CNOT counts are modeled for exact "
              f"amplitude embedding\n(Mottonen et al.); the simulator applies "
              f"StatePrep directly and so hides this term entirely.",
-             fontsize=7.4, color=INK2, va="bottom")
+             fontsize=fs(7.4), color=INK2, va="bottom")
     fig.savefig("fig_scaling.png", dpi=600, bbox_inches="tight")
 
     print("fig_scaling.png")
@@ -347,13 +353,13 @@ def figure_shot_noise():
     ax1.axvline(exact, color=INK, linewidth=2.0, zorder=5)
     ax1.annotate(f"analytic  {exact:.4f}\n(both frameworks, to 5e-16)",
                  xy=(exact, ax1.get_ylim()[1]), xytext=(8, -8),
-                 textcoords="offset points", fontsize=8, fontweight="bold",
+                 textcoords="offset points", fontsize=fs(8), fontweight="bold",
                  color=INK, va="top")
     ax1.set_xlabel(r"estimated $\langle Z_0\rangle$")
     ax1.set_ylabel(f"count (of {len(row['pl_samples'])} runs)")
     ax1.set_title("Same circuit, same weights, same pixel - 40 runs each",
                   loc="left", fontweight="bold", color=INK)
-    ax1.legend(loc="upper left", fontsize=8)
+    ax1.legend(loc="upper left", fontsize=fs(8))
 
     # Precision is bought with shots.
     shots = [s["shots"] for s in sweep]
@@ -369,16 +375,16 @@ def figure_shot_noise():
     ax2.set_ylabel("s.d. of estimate")
     ax2.set_title("Precision costs shots: 4x the shots buys 2x the precision",
                   loc="left", fontweight="bold", color=INK)
-    ax2.legend(loc="lower left", fontsize=8)
+    ax2.legend(loc="lower left", fontsize=fs(8))
 
     fig.suptitle("PennyLane and Qiskit do not disagree - sampling does",
-                 x=0.012, ha="left", fontsize=12.5, fontweight="bold", color=INK)
+                 x=0.012, ha="left", fontsize=fs(12.5), fontweight="bold", color=INK)
     fig.text(0.012, 0.005,
              "Circuit built natively in each framework, not converted. On an "
              "identical circuit the analytic\nresults match to machine "
              "precision; what differs between runs is shot noise, which both "
              "share.",
-             fontsize=7.4, color=INK2, va="bottom")
+             fontsize=fs(7.4), color=INK2, va="bottom")
     fig.savefig("fig_shot_noise.png", dpi=600, bbox_inches="tight")
     print(f"fig_shot_noise.png  (analytic {exact:.6f})")
 
