@@ -239,7 +239,7 @@ def figure_pipeline(k=16, method="uniform"):
     fig.suptitle(
         "Hyperspectral to multispectral to QNN: built-surface change detection",
         x=0.008, ha="left", fontsize=13, fontweight="bold", color=INK)
-    fig.savefig("fig_pipeline.png", dpi=200, bbox_inches="tight")
+    fig.savefig("fig_pipeline.png", dpi=600, bbox_inches="tight")
     print(f"fig_pipeline.png  (k={k}, acc={acc:.4f})")
     return acc
 
@@ -317,7 +317,7 @@ def figure_scaling():
              f"amplitude embedding\n(Mottonen et al.); the simulator applies "
              f"StatePrep directly and so hides this term entirely.",
              fontsize=7.4, color=INK2, va="bottom")
-    fig.savefig("fig_scaling.png", dpi=200, bbox_inches="tight")
+    fig.savefig("fig_scaling.png", dpi=600, bbox_inches="tight")
 
     print("fig_scaling.png")
     for x in sorted(runs, key=lambda z: (z["method"], z["k"])):
@@ -379,7 +379,7 @@ def figure_shot_noise():
              "precision; what differs between runs is shot noise, which both "
              "share.",
              fontsize=7.4, color=INK2, va="bottom")
-    fig.savefig("fig_shot_noise.png", dpi=200, bbox_inches="tight")
+    fig.savefig("fig_shot_noise.png", dpi=600, bbox_inches="tight")
     print(f"fig_shot_noise.png  (analytic {exact:.6f})")
 
 
