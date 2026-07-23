@@ -41,6 +41,29 @@ and picks up the red edge (717–746 nm) where the vegetation/built split lives.
 low band counts: +2.1 pp at k=16, +1.8 pp at k=32, and gone by k=64 (−0.04 pp).
 Both sit near logistic regression on all 103 bands (94.33%).
 
+**6. PennyLane and Qiskit do not disagree — sampling does.** Running the same
+circuit built natively in each framework (amplitude embedding of a real pixel,
+3× SimplifiedTwoDesign, 4 qubits), the analytic ⟨Z₀⟩ agrees to **5×10⁻¹⁶**:
+
+| shots | PennyLane s.d. | Qiskit Aer s.d. | binomial 1/√N |
+|---|---|---|---|
+| 64 | 0.1585 | 0.1256 | 0.1232 |
+| 1024 | 0.0287 | 0.0336 | 0.0308 |
+| 16384 | 0.0077 | 0.0091 | 0.0077 |
+
+Both track the binomial standard error over 40 repetitions per shot count.
+The observable difference between frameworks is shot noise, which they share —
+not a difference in underlying theory. Precision is purchasable: 4× the shots
+buys 2× the precision, which is the physical reason inference cost scales.
+
+**7. The dangerous failure mode is convention mismatch, not noise.** Getting
+this comparison right required matching endianness — PennyLane wire *i* is
+Qiskit qubit *n−1−i*, and under that remap the amplitude vector passes through
+unchanged. Reversing it (the intuitive move) silently applies an X to every
+qubit and returns **−0.0333 instead of −0.1670**: a wrong answer well inside
+the plausible range, with no error raised. This is a concrete instance of the
+cross-library fragility Rybotycki et al. describe.
+
 ### Correction to the source paper
 
 Rybotycki et al. report "2 minutes and 13 seconds" per sample on `ibm_brisbane`.
@@ -79,7 +102,8 @@ classes, but the values aren't comparable to standard NDVI products.
 | `pipeline.py` | Loading, proxy task, NDVI, RGB, band selection (MI / F-score / PCA / uniform / decorrelated) |
 | `qnn.py` | Rybotycki architecture: perceptron → amplitude embedding → 3× SimplifiedTwoDesign → ⟨Z⟩ → sigmoid |
 | `run_experiment.py` | Band sweep over k ∈ {4,8,16,32,64} × 3 seeds → `results.json` |
-| `make_figures.py` | `fig_pipeline.png` (the brief's 3 subplots), `fig_scaling.png` |
+| `sim_comparison.py` | Objective 2: identical circuit in PennyLane and Qiskit, analytic vs sampled → `sim_comparison.json` |
+| `make_figures.py` | `fig_pipeline.png` (the brief's 3 subplots), `fig_scaling.png`, `fig_shot_noise.png` |
 | `POSTER_DESIGN.md` | Poster brief — **cost figures predate the correction above** |
 
 ## Reproduce
@@ -88,16 +112,15 @@ classes, but the values aren't comparable to standard NDVI products.
 python3 -m venv .venv
 ./.venv/bin/pip install numpy scipy matplotlib scikit-learn h5py spectral torch
 ./.venv/bin/pip install pennylane "autoray==0.6.12"   # pin: py3.9 gets PennyLane 0.38
+./.venv/bin/pip install qiskit qiskit-aer
 unzip -o -j ../HybridSN-master.zip "HybridSN-master/data/PaviaU*.mat" -d data/
 ./.venv/bin/python run_experiment.py     # ~2 min
+./.venv/bin/python sim_comparison.py   # ~2 min
 ./.venv/bin/python make_figures.py
 ```
 
 ## Not done
 
-- **Qiskit alongside PennyLane** (project objective 2 — why simulators disagree).
-  The analytic/shot distinction is the likely answer and is a short experiment:
-  same weights, `shots=None` vs `shots=1024`.
 - **Real bi-temporal change detection.** Needs an image pair; OSCD/ONERA or a
   Sentinel-2 pair over a named data center site would do it. Both STAC endpoints
   (Planetary Computer, Earth Search) are reachable.

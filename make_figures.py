@@ -326,6 +326,64 @@ def figure_scaling():
               f"cnots={x['stateprep_cnots_hw']:3d}")
 
 
+def figure_shot_noise():
+    """Objective 2: the two frameworks agree; sampling is what differs."""
+    r = json.load(open("sim_comparison.json"))
+    exact = r["exact"]
+    sweep = r["sweep"]
+
+    fig, (ax1, ax2) = plt.subplots(
+        2, 1, figsize=(7.2, 7.4),
+        gridspec_kw={"height_ratios": [1.1, 1], "hspace": 0.42})
+
+    # Spread of repeated estimates at a representative shot count.
+    row = next(s for s in sweep if s["shots"] == 1024)
+    bins = np.linspace(min(row["pl_samples"] + row["qk_samples"]) - 0.01,
+                       max(row["pl_samples"] + row["qk_samples"]) + 0.01, 22)
+    ax1.hist(row["pl_samples"], bins=bins, color=C_Q, alpha=0.75,
+             label="PennyLane, 1024 shots")
+    ax1.hist(row["qk_samples"], bins=bins, color=C_A, alpha=0.75,
+             label="Qiskit Aer, 1024 shots")
+    ax1.axvline(exact, color=INK, linewidth=2.0, zorder=5)
+    ax1.annotate(f"analytic  {exact:.4f}\n(both frameworks, to 5e-16)",
+                 xy=(exact, ax1.get_ylim()[1]), xytext=(8, -8),
+                 textcoords="offset points", fontsize=8, fontweight="bold",
+                 color=INK, va="top")
+    ax1.set_xlabel(r"estimated $\langle Z_0\rangle$")
+    ax1.set_ylabel(f"count (of {len(row['pl_samples'])} runs)")
+    ax1.set_title("Same circuit, same weights, same pixel - 40 runs each",
+                  loc="left", fontweight="bold", color=INK)
+    ax1.legend(loc="upper left", fontsize=8)
+
+    # Precision is bought with shots.
+    shots = [s["shots"] for s in sweep]
+    ax2.plot(shots, [s["pl_std"] for s in sweep], color=C_Q, linewidth=2.0,
+             marker="o", markersize=6, label="PennyLane")
+    ax2.plot(shots, [s["qk_std"] for s in sweep], color=C_A, linewidth=2.0,
+             marker="s", markersize=5.5, label="Qiskit Aer")
+    ax2.plot(shots, [s["theory_std"] for s in sweep], color=MUTED,
+             linewidth=1.6, linestyle=":", label=r"binomial $1/\sqrt{N}$")
+    ax2.set_xscale("log", base=2); ax2.set_yscale("log")
+    ax2.set_xticks(shots); ax2.set_xticklabels([str(s) for s in shots])
+    ax2.set_xlabel("shots per estimate,  N")
+    ax2.set_ylabel("s.d. of estimate")
+    ax2.set_title("Precision costs shots: 4x the shots buys 2x the precision",
+                  loc="left", fontweight="bold", color=INK)
+    ax2.legend(loc="lower left", fontsize=8)
+
+    fig.suptitle("PennyLane and Qiskit do not disagree - sampling does",
+                 x=0.012, ha="left", fontsize=12.5, fontweight="bold", color=INK)
+    fig.text(0.012, 0.005,
+             "Circuit built natively in each framework, not converted. On an "
+             "identical circuit the analytic\nresults match to machine "
+             "precision; what differs between runs is shot noise, which both "
+             "share.",
+             fontsize=7.4, color=INK2, va="bottom")
+    fig.savefig("fig_shot_noise.png", dpi=200, bbox_inches="tight")
+    print(f"fig_shot_noise.png  (analytic {exact:.6f})")
+
+
 if __name__ == "__main__":
     figure_pipeline(k=16)
     figure_scaling()
+    figure_shot_noise()
