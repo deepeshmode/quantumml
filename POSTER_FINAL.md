@@ -1,9 +1,38 @@
 # Final poster copy
 
-A0 portrait, three columns, 50 mm margins. ~640 body words (Carter's ceiling is
-800). Prose throughout — no bullet lists, no tables, no boxed sections. Figures
-`fig_pipeline.png` and `fig_scaling.png`; `fig_shot_noise.png` runs on the
-monitor, not the poster.
+A0 portrait, three columns. 616 body words. Prose throughout — no bullet lists,
+no tables, no boxed sections. Figures `fig_pipeline.png` and `fig_scaling.png`;
+`fig_shot_noise.png` runs on the monitor, not the poster.
+
+## Typography and layout spec
+
+Follow these exactly; they reconcile Argonne's guide with Faulkes and Carter.
+
+| Element | Spec |
+|---|---|
+| Title | 100 pt bold, **max 2 lines** (48 pt is the floor for any poster; A0 wants ~100) |
+| Subtitle | 44 pt regular |
+| Author line | 40 pt |
+| Section headings | 48 pt bold, **in `#2a78d6`** — heading colour is the cheapest way to define sections |
+| Body text | 32 pt (Argonne: 30–36 pt) |
+| Figure captions | 26 pt |
+| Margins and column gaps | 64 mm (2.5 in) on all sides and between every column |
+| Typefaces | Two maximum, both sans-serif — one for headings, one for body |
+| Colours | Three maximum: `#2a78d6`, `#eb6834`, `#1baf7a`, plus neutrals |
+
+**Area budget** — roughly 30% white space, 40% title and text, 30% graphics. If
+the poster feels full, cut text before shrinking margins; white space is what
+stops a viewer feeling overwhelmed, not wasted area.
+
+**Flow** must be unambiguous: top-left entry point, down column 1, then column 2,
+then column 3. A reader should never have to work out where to look next.
+
+Keep chart interiors in ink (`#0b0b0b` / `#52514e`) — coloured section headings
+are for the poster, not for text inside figures, where colour carries series
+identity instead.
+
+All graphics are 200 dpi PNG at print size and legible from 5 feet. Credit
+sources in the caption where the data is not yours.
 
 Rebalanced for an NGA audience: column 1 is a sensing problem statement, not a
 policy brief. The compute-governance framing is cited, not argued — that room
