@@ -10,3 +10,5 @@ data/
 
 # macOS
 .DS_Store
+demo.gif
+demo_data.npz
