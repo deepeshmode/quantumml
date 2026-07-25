@@ -64,6 +64,25 @@ qubit and returns **−0.0333 instead of −0.1670**: a wrong answer well inside
 the plausible range, with no error raised. This is a concrete instance of the
 cross-library fragility Rybotycki et al. describe.
 
+**8. Reproduced the original QNN on OSCD, and found the bug behind its
+open question.** The pixel-level QNN of `Tomev/qnn_change_detection` (the repo
+the project brief points at) reproduces on the OSCD change-detection dataset:
+20 epochs, 4 qubits, **72.8% final validation accuracy / F1 0.691**, reaching the
+paper's ~71% plateau. Epoch 1 matches the published curve to three decimals
+(63.2% vs 63.17%). Full write-up: `../qnn_change_detection/REPRODUCTION.md`.
+
+Their README lists an unresolved issue — their PennyLane and Qiskit models "do
+not do the same computations… we were not able to assert why." They are literally
+different circuits: `SimplifiedTwoDesignQiskit` omits the initial RY layer and
+mistargets the even-block rotations (18 gates vs PennyLane's 22 for N=4, L=2).
+`reproduction_std_bug.py` reproduces this standalone. Not a simulator or
+endianness difference — see finding 6.
+
+Reproducing it also surfaced five environment breakages before a single epoch
+ran (obsolete-package guard, a removed PennyLane API, an autoray incompatibility,
+a hardcoded MLflow server, and a *yanked* PennyLane release), which is first-hand
+evidence for the paper's own claim about QML software fragility.
+
 ### Correction to the source paper
 
 Rybotycki et al. report "2 minutes and 13 seconds" per sample on `ibm_brisbane`.
