@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./.venv/bin/python run_experiment.py)",
+      "Bash(./.venv/bin/python sim_comparison.py)",
+      "Bash(./.venv/bin/python make_figures.py)",
+      "Bash(./.venv/bin/python verify_claims.py)",
+      "Bash(./.venv/bin/python reproduction_std_bug.py)",
+      "Bash(./.venv/bin/python --version)",
+      "Bash(./.venv/bin/pytest *)",
+
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(git ls-files *)",
+      "Bash(git rev-parse *)",
+      "Bash(git remote -v)",
+
+      "Bash(uv pip list *)",
+      "Bash(uv pip show *)",
+      "Bash(uv pip freeze *)"
+    ]
+  }
+}
