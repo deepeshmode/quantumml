@@ -114,14 +114,55 @@ One latent defect: `ConvolutionalQuantumNeuralNetwork` hardcodes
 (`src/quantum_classifier.py:613`). That class cannot run on this machine as
 written.
 
-**Would a GPU help? Less than expected.** The run performed **1,367,440 circuit
-executions across 2,742 batches**. At 8 wires each circuit state is 256
-amplitudes — far too small to saturate a GPU, so launch overhead would likely
-dominate. The bottleneck is per-circuit Python dispatch, not arithmetic. The
-higher-leverage fixes are repairing `lightning.qubit` and batching circuit
-evaluation. A measured example of how much batching matters: inference at batch
-1000 runs at ~9,700 px/s, while batch 20,000 collapses to ~650 px/s — a 15×
-penalty from batch size alone.
+**Would a GPU help? Measured answer: not at this circuit width.** The run
+performed **1,367,440 circuit executions across 2,742 batches**. At 8 wires each
+state is 256 amplitudes — 4 KB — far too small to saturate a GPU.
+
+This is not speculation; the backend crossover is measurable on CPU alone.
+Per-circuit microseconds for this project's own circuit (AngleEmbedding +
+SimplifiedTwoDesign, 3 layers), swept across width —
+`analysis/fig6_backend_crossover.png`:
+
+| wires | default.qubit | lightning.qubit | qiskit.aer |
+|---|---|---|---|
+| 4 | **17** | 362 | 9,513 |
+| 8 | **186** | 792 | 18,960 |
+| 12 | **1,627** | 2,551 | 37,741 |
+| 14 | 8,398 | **6,367** | 50,337 |
+| 16 | 33,035 | **18,777** | 64,400 |
+| 18 | 140,154 | 84,889 | **88,534** |
+| 20 | 678,818 | 430,791 | **175,398** |
+
+Every accelerated backend carries a fixed per-call overhead and only wins once
+the state is large enough to amortise it. `lightning.qubit` — a C++ backend — is
+**4.2× slower than plain Python at 8 wires** and does not overtake until 14.
+`qiskit.aer`, 50× slower at small widths, wins above 18. The upstream choice of
+`default.qubit` is therefore correct for this workload, and the commented-out
+`lightning.qubit` line in `config.py:165-167` costs nothing at 8 wires.
+
+A GPU sits further along the same axis: larger fixed overhead, larger payoff,
+crossover at a higher width still. GPU statevector simulation typically starts
+paying off around 20+ qubits. See `analysis/gpu_benchmark_colab.py` for the
+script that fills in the `lightning.gpu` column on CUDA hardware.
+
+The exponential wall is not something a GPU moves. Circuit width for the
+patch-based model is `2 × PATCH_SIDE²`:
+
+| patch | wires | statevector |
+|---|---|---|
+| 2×2 | 8 | 4 KB |
+| 3×3 | 18 | 4 MB |
+| 4×4 | 32 | **68 GB** |
+
+24 GB of RAM reaches ~30 wires; an 80 GB A100 reaches ~32. **A GPU buys roughly
+two qubits**, not a new regime.
+
+What does help, measured: **batch size and idle cores.** Inference runs at
+~9,700 px/s at batch 1000 but collapses to ~650 px/s at batch 20,000 — a 15×
+penalty from batch size alone. On the QCNN circuit, batch 1 → 1000 moves
+throughput 167 → 31,634 samples/s, a **189× swing**. And the 3 h 11 m training
+run held ~104 % CPU on a 10-core machine, leaving ~90 % of the hardware idle.
+Parallelism and batching dominate any hardware change at this scale.
 
 ## 3) Were different qubit counts tested, and how do they affect training?
 
