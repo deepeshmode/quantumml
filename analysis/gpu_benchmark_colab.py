@@ -44,6 +44,9 @@ WIRE_COUNTS = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28]
 N_LAYERS = 3
 REPEATS = 3
 MAX_BROADCAST_AMPS = 2 ** 22          # cap broadcast state at ~67 MB
+# Retire a backend once a single measurement exceeds this. Without it the pure
+# Python simulator would spend hours past ~22 wires while the GPU is the point.
+GIVE_UP_SECONDS = 25.0
 CANDIDATES = ["default.qubit", "lightning.qubit", "lightning.gpu",
               "lightning.kokkos", "qiskit.aer"]
 
@@ -151,6 +154,8 @@ def main():
                 rows.append({"kind": "forward", "backend": b, "wires": n,
                              "batch": batch, "seconds": t, "per_circuit_us": us})
                 cells.append(f"{us:>15.1f}us")
+                if t > GIVE_UP_SECONDS:
+                    dead.add(b)                            # too slow to continue
             except Exception as e:
                 dead.add(b)                                # OOM / unsupported
                 rows.append({"kind": "forward", "backend": b, "wires": n,
@@ -175,6 +180,8 @@ def main():
                 rows.append({"kind": "gradient", "backend": b, "wires": n,
                              "seconds": t})
                 cells.append(f"{1e3*t:>15.2f}ms")
+                if t > GIVE_UP_SECONDS:
+                    dead.add(b)
             except Exception as e:
                 dead.add(b)
                 rows.append({"kind": "gradient", "backend": b, "wires": n,
