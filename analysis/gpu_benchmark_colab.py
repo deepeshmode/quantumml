@@ -11,11 +11,27 @@ HOW TO RUN
 3. Upload this file (or paste it into a cell) and run it.
 4. Download `gpu_benchmark.json` and hand it back — it merges with the CPU run.
 
-INSTALL CELL (run this first, then restart the runtime):
+INSTALL CELL (run this, then RESTART THE RUNTIME before anything else):
 
     !nvidia-smi
-    !pip install -q pennylane==0.38.1 pennylane-lightning==0.38.0 \
+    !pip install -q "numpy==1.26.4" "scipy==1.13.1" \
+                    pennylane==0.38.1 pennylane-lightning==0.38.0 \
                     pennylane-lightning-gpu==0.38.0 custatevec-cu12
+
+The numpy pin is not optional. PennyLane 0.38.1 predates numpy 2.x, while
+Colab ships numpy 2 — mixing them raises
+
+    ValueError: numpy.dtype size changed, may indicate binary incompatibility.
+    Expected 96 from C header, got 88 from PyObject
+
+on `import pennylane`. scipy is pinned with it because Colab's stock scipy is
+built against numpy 2 and breaks when numpy is downgraded alone. Restarting the
+runtime afterwards is equally mandatory: pip cannot swap a numpy that the
+kernel has already imported.
+
+If the pinned stack cannot be made to work, running the newest PennyLane
+instead is acceptable — record the version in the output and the CPU baseline
+will be re-run to match, since cross-version timings are not comparable.
 
 Notes
 -----
