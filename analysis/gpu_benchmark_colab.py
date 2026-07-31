@@ -14,20 +14,28 @@ HOW TO RUN
 INSTALL CELL (run this, then RESTART THE RUNTIME before anything else):
 
     !nvidia-smi
-    !pip install -q "numpy==1.26.4" "scipy==1.13.1" \
+    !pip install -q "numpy==1.26.4" "scipy==1.13.1" "autoray==0.6.12" \
                     pennylane==0.38.1 pennylane-lightning==0.38.0 \
                     pennylane-lightning-gpu==0.38.0 custatevec-cu12
 
-The numpy pin is not optional. PennyLane 0.38.1 predates numpy 2.x, while
-Colab ships numpy 2 — mixing them raises
+None of these three pins is optional, and each fails differently:
 
-    ValueError: numpy.dtype size changed, may indicate binary incompatibility.
-    Expected 96 from C header, got 88 from PyObject
+* numpy — PennyLane 0.38.1 predates numpy 2.x while Colab ships numpy 2:
 
-on `import pennylane`. scipy is pinned with it because Colab's stock scipy is
-built against numpy 2 and breaks when numpy is downgraded alone. Restarting the
-runtime afterwards is equally mandatory: pip cannot swap a numpy that the
-kernel has already imported.
+      ValueError: numpy.dtype size changed, may indicate binary
+      incompatibility. Expected 96 from C header, got 88 from PyObject
+
+* scipy — Colab's stock build targets numpy 2 and breaks if numpy is
+  downgraded on its own, so it must move together with numpy.
+
+* autoray — 0.8.x removed the symbol PennyLane 0.38 imports:
+
+      AttributeError: module 'autoray.autoray' has no attribute 'NumpyMimic'
+
+  This is the same pin the training environment carries; see CLAUDE.md.
+
+Restarting the runtime after installing is equally mandatory: pip cannot swap
+a numpy the kernel has already imported.
 
 If the pinned stack cannot be made to work, running the newest PennyLane
 instead is acceptable — record the version in the output and the CPU baseline
