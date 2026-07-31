@@ -1,0 +1,138 @@
+{
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "pennylane": "0.45.1",
+  "backends": [
+    "default.qubit",
+    "lightning.qubit"
+  ],
+  "unavailable": {
+    "lightning.gpu": "DeviceError: Device lightning.gpu does not exist. Make sure the required plugin is installed.",
+    "lightning.kokkos": "DeviceError: Device lightning.kokkos does not exist. Make sure the required plugin is installed.",
+    "qiskit.aer": "DeviceError: Device qiskit.aer does not exist. Make sure the required plugin is installed."
+  },
+  "n_layers": 3,
+  "results": [
+    {
+      "backend": "default.qubit",
+      "wires": 4,
+      "batch": 256,
+      "seconds": 0.004342458036262542,
+      "per_circuit_us": 16.962726704150555
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 4,
+      "batch": 256,
+      "seconds": 0.1900166249834001,
+      "per_circuit_us": 742.2524413414067
+    },
+    {
+      "backend": "default.qubit",
+      "wires": 6,
+      "batch": 256,
+      "seconds": 0.013523417001124471,
+      "per_circuit_us": 52.82584766064247
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 6,
+      "batch": 256,
+      "seconds": 0.3047137079993263,
+      "per_circuit_us": 1190.2879218723683
+    },
+    {
+      "backend": "default.qubit",
+      "wires": 8,
+      "batch": 256,
+      "seconds": 0.05313304194714874,
+      "per_circuit_us": 207.55094510604977
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 8,
+      "batch": 256,
+      "seconds": 0.42808408400742337,
+      "per_circuit_us": 1672.2034531539975
+    },
+    {
+      "backend": "default.qubit",
+      "wires": 10,
+      "batch": 256,
+      "seconds": 0.22955670795636252,
+      "per_circuit_us": 896.7058904545411
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 10,
+      "batch": 256,
+      "seconds": 0.5725734999869019,
+      "per_circuit_us": 2236.6152343238355
+    },
+    {
+      "backend": "default.qubit",
+      "wires": 12,
+      "batch": 256,
+      "error": "ValueError"
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 12,
+      "batch": 256,
+      "seconds": 0.8399161249981262,
+      "per_circuit_us": 3280.9223632739304
+    },
+    {
+      "backend": "default.qubit",
+      "wires": 14,
+      "batch": 256,
+      "error": "ValueError"
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 14,
+      "batch": 256,
+      "seconds": 1.709057666012086,
+      "per_circuit_us": 6676.006507859711
+    },
+    {
+      "backend": "default.qubit",
+      "wires": 16,
+      "batch": 64,
+      "error": "ValueError"
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 16,
+      "batch": 64,
+      "seconds": 1.2997674999642186,
+      "per_circuit_us": 20308.867186940915
+    },
+    {
+      "backend": "default.qubit",
+      "wires": 18,
+      "batch": 16,
+      "error": "ValueError"
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 18,
+      "batch": 16,
+      "seconds": 1.280960708972998,
+      "per_circuit_us": 80060.04431081237
+    },
+    {
+      "backend": "default.qubit",
+      "wires": 20,
+      "batch": 4,
+      "error": "ValueError"
+    },
+    {
+      "backend": "lightning.qubit",
+      "wires": 20,
+      "batch": 4,
+      "seconds": 1.64309054199839,
+      "per_circuit_us": 410772.6354995975
+    }
+  ]
+}

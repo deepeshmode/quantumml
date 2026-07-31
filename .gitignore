@@ -12,3 +12,6 @@ data/
 .DS_Store
 demo.gif
 demo_data.npz
+
+# Alternate venv for version-matched benchmarking
+.venv-modern/

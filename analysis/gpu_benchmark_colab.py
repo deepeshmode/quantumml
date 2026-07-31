@@ -121,13 +121,30 @@ def make_qnode(backend, n_wires, diff_method=None):
 
 
 def bench_forward(backend, n_wires):
-    batch = batch_for(n_wires)
+    """Time a forward pass, broadcasting a batch where the backend supports it.
+
+    PennyLane 0.45's default.qubit raises `ValueError: shape-mismatch for sum`
+    for any broadcast batch above 11 wires, so fall back to single-circuit
+    timing rather than losing the whole column. Per-circuit microseconds stays
+    the comparable quantity either way; `mode` records which path was taken.
+    """
     circuit, shape = make_qnode(backend, n_wires)
-    x = pnp.array(np.random.uniform(0, np.pi, (batch, n_wires)))
     w = pnp.array(np.random.uniform(0, np.pi, shape[1]))
-    circuit(x[0], w)                                       # warm up
-    best = min(_timed(circuit, x, w) for _ in range(REPEATS))
-    return best, batch
+    batch = batch_for(n_wires)
+
+    if batch > 1:
+        x = pnp.array(np.random.uniform(0, np.pi, (batch, n_wires)))
+        try:
+            circuit(x[0], w)                               # warm up
+            best = min(_timed(circuit, x, w) for _ in range(REPEATS))
+            return best, batch, "broadcast"
+        except Exception:
+            pass                                           # fall through
+
+    x1 = pnp.array(np.random.uniform(0, np.pi, n_wires))
+    circuit(x1, w)                                         # warm up
+    best = min(_timed(circuit, x1, w) for _ in range(REPEATS))
+    return best, 1, "single"
 
 
 def bench_gradient(backend, n_wires):
@@ -162,6 +179,7 @@ def main():
     rows = []
     print(f"\nForward pass — per-circuit microseconds "
           f"(SimplifiedTwoDesign, {N_LAYERS} layers, best of {REPEATS})")
+    print("  * = backend rejected a broadcast batch; timed one circuit at a time")
     head = "  wires    state  " + "".join(f"{b:>18}" for b in found)
     print(head + "\n  " + "-" * (len(head) - 2))
 
@@ -173,11 +191,12 @@ def main():
                 cells.append(f"{'—':>18}")
                 continue
             try:
-                t, batch = bench_forward(b, n)
+                t, batch, mode = bench_forward(b, n)
                 us = 1e6 * t / batch
                 rows.append({"kind": "forward", "backend": b, "wires": n,
-                             "batch": batch, "seconds": t, "per_circuit_us": us})
-                cells.append(f"{us:>15.1f}us")
+                             "batch": batch, "mode": mode, "seconds": t,
+                             "per_circuit_us": us})
+                cells.append(f"{us:>14.1f}us{'*' if mode == 'single' else ' '}")
                 if t > GIVE_UP_SECONDS:
                     dead.add(b)                            # too slow to continue
             except Exception as e:
@@ -251,9 +270,11 @@ def main():
     except Exception:
         out["nvidia_smi"] = None
 
-    with open("gpu_benchmark.json", "w") as f:
+    tag = "gpu" if gpu_present else platform.machine()
+    name = f"backend_benchmark_{tag}.json"
+    with open(name, "w") as f:
         json.dump(out, f, indent=2)
-    print("\nwrote gpu_benchmark.json — download this and hand it back")
+    print(f"\nwrote {name} — download this and hand it back")
 
 
 if __name__ == "__main__":
