@@ -376,13 +376,41 @@ tractable case, 8 angle-encoded features:
   intractable.** The fallback is group-level attribution (per-date,
   per-supervoxel).
 
+**Closing measurements (2026-08-03, after the checkpointed retrain and the
+group-SHAP run):**
+
+- **The epoch-18 checkpoint was recovered bit-exactly.** Retraining with the
+  checkpoint patch reproduced all 20 per-epoch validation accuracies to four
+  decimals (seeded training here is fully deterministic) and took 22 m 41 s —
+  the original 3 h 11 m was thermal throttling, not computation. But the
+  recovery buys the reported metric, not the deliverable model: at full
+  resolution the epoch-18 model's threshold-optimised F1 is **0.1972**
+  (best threshold 0.64) against epoch 20's **0.1974** (at 0.69). The +0.9 pp
+  balanced-validation gain does not survive the natural distribution; the
+  two checkpoints are operationally equivalent
+  (`analysis/best_epoch_fullres.json`).
+- **Group-SHAP on the 20-wire 4D model** (`analysis/xai_4d.py`,
+  `fig9_xai_4d.png`; twin of the Colab Arm B, exact Shapley over date and
+  octant groups against a frozen-time baseline, efficiency axiom 7e-18):
+  the model classifies near chance, yet its attributions are **spatially
+  specific** — in 3 of 4 change sequences the octant actually containing
+  the edit received the top attribution (the fourth ranked its
+  second-most-changed octant first), and change sequences carry ~3× the
+  date-group attribution of no-change sequences. The failure mode is not
+  spatial blindness but decision-boundary formation: the circuit responds
+  to where the change is, and 60 sequences × 4 epochs were not enough to
+  turn that response into a classifier. Group-level attribution is thereby
+  demonstrated as the workable xAI route for amplitude-embedded models —
+  8 or 256 coalitions where per-amplitude SHAP needs 10^315,653.
+
 ## Open items
 
 1. Re-score against Daudt's baseline on the natural distribution — the current
    comparison is not valid. *(still open)*
-2. ~~Add checkpoint selection~~ — **done 2026-08-03**: `src/pixel_level/
-   train.py` carries a local patch saving the best-val model per epoch;
-   a checkpointed retraining run is in progress.
+2. ~~Add checkpoint selection~~ — **done 2026-08-03**: best-val model saved
+   per epoch; epoch 18 recovered bit-exactly. Measured outcome: equivalent
+   to epoch 20 at full resolution (see closing measurements) — the gain was
+   metric-cosmetic.
 3. ~~Move the operating point off 0.5~~ — **measured 2026-08-03**: see the
    threshold trade above; both operating points reported.
 4. Fix the hardcoded `initial_layer_weights` so qubit count can be swept on
