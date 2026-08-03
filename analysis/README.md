@@ -14,6 +14,10 @@ the answers assert is in `metrics.json` or `backend_benchmark*.json`.
 | `metrics.json` | Full-resolution confusion matrices, per city and aggregate |
 | `backend_benchmark.json` | Backend timings, PennyLane 0.38.1, this project's pinned stack |
 | `backend_benchmark_pl045.json` | Same sweep on PennyLane 0.45.1, for reference |
+| `fig7_xai.png` | Exact SHAP / IG attributions and Fourier structure of the trained model (`xai_oscd.py`) |
+| `fig8_gpu_t4.png` | The measured GPU crossover on a Colab T4 (`plot_gpu_t4.py`) |
+| `xai_results.json` | Attribution numbers, symmetry decomposition, 4D xAI cost table |
+| `experiment_4d_results.json` | 4D experiment: both arms, count baseline, T4 benchmark |
 
 ## Regenerating the OSCD analysis
 

@@ -1,0 +1,185 @@
+{
+  "config": {
+    "res": 64,
+    "res_a": 16,
+    "dates": 4,
+    "n_train_seq": 60,
+    "n_test_seq": 24,
+    "n_voxel_train": 3000,
+    "n_voxel_test": 4000,
+    "epochs_a": 3,
+    "epochs_b": 4,
+    "batch_a": 64,
+    "batch_b": 8,
+    "layers": 3,
+    "noise": 0.004,
+    "seed": 7,
+    "no_download": false
+  },
+  "env": {
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "pennylane": "0.45.1",
+    "torch": "2.11.0+cu128",
+    "quantum_device": "lightning.gpu",
+    "gpu": true,
+    "nvidia_smi": "Tesla T4, 15360 MiB"
+  },
+  "caveats": [
+    "Temporal evolution is synthetic (structural edits on real 3D models); no public 4D change benchmark with voxel labels exists.",
+    "Amplitude state preparation is O(2^n) CNOTs on hardware (2^n - n - 1), so Arm B is simulable, not executable.",
+    "Arm B's classes differ in total occupancy, and with date-major flattening <Z0> reads the early-vs-late mass statistic; Arm B evidences spatial change detection only where it beats count_baseline."
+  ],
+  "data": {
+    "provenance": "ModelNet10 (84 meshes @ 64^3)",
+    "dates": 4,
+    "res": 64,
+    "n_train": 60,
+    "n_test": 24,
+    "edit_kinds": {
+      "demolition": 13,
+      "construction": 29
+    },
+    "min_edit_voxels": 32
+  },
+  "arm_a": {
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 0.5873389265093137,
+        "seconds": 54.87741231899997,
+        "samples_per_s": 38.2488880452053
+      },
+      {
+        "epoch": 2,
+        "loss": 0.549417667158335,
+        "seconds": 54.91560681300001,
+        "samples_per_s": 38.22228546335775
+      },
+      {
+        "epoch": 3,
+        "loss": 0.5281259332059849,
+        "seconds": 55.06001669699998,
+        "samples_per_s": 38.122037113627805
+      }
+    ],
+    "accuracy": 0.7791164658634538,
+    "precision": 0.030871003307607496,
+    "recall": 0.9655172413793104,
+    "f1": 0.059829059829059825,
+    "confusion": {
+      "tp": 28,
+      "fp": 879,
+      "fn": 1,
+      "tn": 3076
+    },
+    "prevalence": 0.007279116465863454,
+    "probs_kept": false,
+    "balanced_resample": {
+      "f1_mean": 0.8764594085751936,
+      "accuracy_mean": 0.8629310344827585,
+      "draws": 20,
+      "note": "paper-style balanced resample of the same predictions; inflated relative to natural metrics by design"
+    },
+    "wires": 8,
+    "device": "lightning.gpu",
+    "embedding": "angle (paper)",
+    "n_params": 122
+  },
+  "arm_b": {
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 0.7972713311513265,
+        "seconds": 11.91465409500006,
+        "samples_per_s": 5.035815519409731
+      },
+      {
+        "epoch": 2,
+        "loss": 0.7231624484062195,
+        "seconds": 11.695346937999943,
+        "samples_per_s": 5.130245414529001
+      },
+      {
+        "epoch": 3,
+        "loss": 0.6857190608978272,
+        "seconds": 11.737049258999946,
+        "samples_per_s": 5.112017396876146
+      },
+      {
+        "epoch": 4,
+        "loss": 0.674764343102773,
+        "seconds": 11.555238247000034,
+        "samples_per_s": 5.19245027384677
+      }
+    ],
+    "accuracy": 0.5,
+    "precision": 0.5714285714285714,
+    "recall": 0.3076923076923077,
+    "f1": 0.4,
+    "confusion": {
+      "tp": 4,
+      "fp": 3,
+      "fn": 9,
+      "tn": 8
+    },
+    "prevalence": 0.5416666666666666,
+    "probs_kept": false,
+    "count_baseline": {
+      "accuracy": 0.4583333333333333,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "confusion": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 13,
+        "tn": 11
+      },
+      "prevalence": 0.5416666666666666,
+      "probs_kept": false
+    },
+    "wires": 20,
+    "device": "lightning.gpu",
+    "embedding": "amplitude",
+    "stateprep_cnots_hw": 1048555,
+    "n_params": 136
+  },
+  "benchmark": [
+    {
+      "wires": 8,
+      "backend": "default.qubit",
+      "forward_ms": 65.3050030000486,
+      "gradient_ms": 75.47824200003106
+    },
+    {
+      "wires": 8,
+      "backend": "lightning.qubit",
+      "forward_ms": 8.573936000061622,
+      "gradient_ms": 10.511272000030658
+    },
+    {
+      "wires": 8,
+      "backend": "lightning.gpu",
+      "forward_ms": 16.168260000085866,
+      "gradient_ms": 17.85232100007761
+    },
+    {
+      "wires": 20,
+      "backend": "default.qubit",
+      "forward_ms": 11634.855832999961,
+      "gradient_ms": 12873.371522999947
+    },
+    {
+      "wires": 20,
+      "backend": "lightning.qubit",
+      "forward_ms": 1408.0802679999351,
+      "gradient_ms": 1405.829027999971
+    },
+    {
+      "wires": 20,
+      "backend": "lightning.gpu",
+      "forward_ms": 150.80831900002067,
+      "gradient_ms": 154.96503800000028
+    }
+  ]
+}

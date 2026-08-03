@@ -140,10 +140,33 @@ the state is large enough to amortise it. `lightning.qubit` — a C++ backend �
 `default.qubit` is therefore correct for this workload, and the commented-out
 `lightning.qubit` line in `config.py:165-167` costs nothing at 8 wires.
 
-A GPU sits further along the same axis: larger fixed overhead, larger payoff,
-crossover at a higher width still. GPU statevector simulation typically starts
-paying off around 20+ qubits. See `analysis/gpu_benchmark_colab.py` for the
-script that fills in the `lightning.gpu` column on CUDA hardware.
+Two updates from later measurement (2026-08-03), which sharpen and partly
+supersede the table above:
+
+**For gradients — what training actually computes — the C++ backend wins at
+every width.** The forward-pass crossover does not carry over to adjoint
+differentiation: on this machine `lightning.qubit` beats `default.qubit` at
+4 wires already (2.2 vs 9.3 ms/gradient) and by 44× at 20 wires (0.38 vs
+16.5 s). The "default.qubit wins below 14 wires" rule applies to broadcast
+forward passes only.
+
+**The GPU crossover is now measured, not projected** — Colab Tesla T4,
+PennyLane 0.45.1, same host for all backends, single-circuit timings
+(`analysis/fig8_gpu_t4.png`, data in `analysis/experiment_4d_results.json`):
+
+| | 8 wires fwd / grad | 20 wires fwd / grad |
+|---|---|---|
+| default.qubit | 65 / 75 ms | 11,635 / 12,873 ms |
+| lightning.qubit | **8.6 / 10.5 ms** | 1,408 / 1,406 ms |
+| lightning.gpu | 16.2 / 17.9 ms | **151 / 155 ms** |
+
+At 8 wires — this project's model — the GPU is **1.7–1.9× slower** than the
+same machine's CPU backend. At 20 wires it is **9.1–9.3× faster**. The same
+inversion shows up in the real training loops, not just microbenchmarks: the
+8-wire Arm A of the 4D experiment trained at 38 samples/s on the T4 versus
+~400 samples/s for the identical loop on a laptop CPU, while the 20-wire
+Arm B trained at 11.7 s/epoch on the GPU — a workload that projects to
+roughly 9× longer on that host's CPU backend and ~80× longer on pure Python.
 
 The exponential wall is not something a GPU moves. Circuit width for the
 patch-based model is `2 × PATCH_SIDE²`:
@@ -301,6 +324,51 @@ spread:
 | cupertino | 1015 × 788 | 0.881 | 0.108 | 0.553 | 0.180 |
 | beirut | 1180 × 1070 | 0.795 | 0.090 | 0.723 | 0.159 |
 | mumbai | 858 × 557 | 0.792 | 0.060 | 0.489 | 0.107 |
+
+## Postscript — the 4D experiment and explainability (2026-08-03)
+
+Two follow-up studies extend these answers; full data in
+`analysis/experiment_4d_results.json` and `analysis/xai_results.json`.
+
+**4D change detection (3D structures + time), run on a Colab T4**
+(`analysis/experiment_4d_colab.py`). Real ModelNet10 meshes voxelized at
+64³, synthetic structural edits (29 constructions, 13 demolitions), half the
+sequences unchanged. Findings:
+
+- **The evaluation-inflation mechanism replicated in 4D.** The
+  paper-faithful 8-wire arm, evaluated at natural prevalence (0.73%
+  changed voxels), scores **F1 0.060** (precision 0.031, recall 0.966 —
+  the flag-everything syndrome again). The same predictions under the
+  paper's class-balanced protocol score **F1 0.876** — a 14.7× inflation,
+  larger than the 4.5× found on OSCD. The protocol, not the task,
+  manufactures the headline number.
+- **The 20-wire amplitude arm trained on GPU but did not learn**: accuracy
+  0.500 at n=24 (chance). The pre-registered count-only baseline also
+  failed (F1 0.0) — the minimum-edit-size control kept small edits below
+  the occupancy-noise floor — so by the experiment's own criterion no
+  spatial change detection is claimed. What the arm does establish is
+  feasibility and cost: 11.7 s/epoch at 20 wires on a T4, against a
+  hardware state-preparation price of 2²⁰−21 = 1,048,555 CNOTs per sample.
+  Simulable, not executable.
+
+**Explainability (`analysis/xai_oscd.py`, per arXiv:2211.01441).** Exact
+Baseline SHAP and Integrated Gradients on the trained OSCD model — the
+tractable case, 8 angle-encoded features:
+
+- False positives are **74% driven by spectral level** (identical at both
+  dates — "urban-ness") vs a 50% null; even true positives are 62%
+  level-driven. The fig2 error-map reading is now a per-decision quantity.
+- Attribution concentrates almost entirely on pc1 of both dates, and the
+  exact Fourier spectrum of the quantum core is 52% additive / 96% within
+  interaction order ≤ 3: the entangled 114-parameter circuit learned a
+  function a small classical additive model represents.
+- The 4D model inverts the tractability: at 2²⁰ amplitude-encoded
+  features, exact SHAP needs ~10^315,653 coalitions and the Fourier
+  structure behind qSHAP does not exist (amplitude encoding is not
+  rotation encoding). **The embedding that makes 4D simulable — and the
+  GPU worthwhile — is the embedding that makes per-feature explanation
+  intractable.** The fallback is group-level attribution (per-date,
+  per-supervoxel).
 
 ## Open items
 
