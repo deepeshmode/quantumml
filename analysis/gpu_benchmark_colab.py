@@ -74,11 +74,18 @@ GIVE_UP_SECONDS = 25.0
 CANDIDATES = ["default.qubit", "lightning.qubit", "lightning.gpu",
               "lightning.kokkos", "qiskit.aer"]
 
-# This project's operating points, marked on the output for context.
+# Operating points marked on the output. See wire_budget.py for the arithmetic:
+# angle embedding costs T*V*F wires, amplitude embedding ceil(log2(T*V*F)).
 PROJECT_POINTS = {
-    8:  "pixel-level QNN (2 x 4 PCA components) and 2x2-patch QCNN",
-    18: "3x3-patch QCNN",
-    32: "4x4-patch QCNN — 68 GB, out of reach on any single GPU",
+    8:  "current pixel-level QNN — 2 dates x 4 PCA components (angle)",
+    14: "4D: 8^3 voxels x 10 bands x 2 dates (amplitude)",
+    18: "3x3-patch QCNN (angle)  |  4D: 16^3 voxels x 13 bands x 4 dates (amplitude)",
+    20: "1x1 px x 10 bands, PCA removed (angle) — fixes the per-date basis mismatch",
+    21: "4D: 32^3 voxels x 13 bands x 4 dates (amplitude)",
+    24: "4D: 64^3 voxels x 13 bands x 4 dates (amplitude)",
+    26: "1x1 px x all 13 bands (angle)",
+    28: "4D: 128^3 voxels x 13 bands x 8 dates (amplitude)",
+    32: "2x2 patch x 4 PCA (angle) — 68 GB, beyond any single GPU",
 }
 
 
