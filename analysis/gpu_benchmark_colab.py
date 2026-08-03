@@ -155,13 +155,30 @@ def bench_forward(backend, n_wires):
 
 
 def bench_gradient(backend, n_wires):
-    """Adjoint differentiation — this is what a training step actually costs."""
-    circuit, shape = make_qnode(backend, n_wires, diff_method="adjoint")
-    x = pnp.array(np.random.uniform(0, np.pi, n_wires))
+    """Adjoint differentiation — this is what a training step actually costs.
+
+    The qnode takes weights only, with the input angles baked in as
+    constants: qml.grad's argnum kwarg was removed in PennyLane 0.4x, and a
+    single-argument qnode sidesteps the difference entirely, so this runs
+    unchanged on 0.38 and 0.45+."""
+    dev = qml.device(backend, wires=n_wires)
+    shape = qml.SimplifiedTwoDesign.shape(n_layers=N_LAYERS, n_wires=n_wires)
+    x = np.random.uniform(0, np.pi, n_wires)
+
+    @qml.qnode(dev, diff_method="adjoint")
+    def circuit(weights):
+        qml.AngleEmbedding(x, wires=range(n_wires), rotation="Y")
+        qml.SimplifiedTwoDesign(
+            initial_layer_weights=pnp.zeros(n_wires),
+            weights=weights,
+            wires=range(n_wires),
+        )
+        return qml.expval(qml.PauliZ(0))
+
     w = pnp.array(np.random.uniform(0, np.pi, shape[1]), requires_grad=True)
-    grad = qml.grad(circuit, argnum=1)
-    grad(x, w)                                             # warm up
-    return min(_timed(grad, x, w) for _ in range(REPEATS))
+    grad = qml.grad(circuit)
+    grad(w)                                                # warm up
+    return min(_timed(grad, w) for _ in range(REPEATS))
 
 
 def _timed(fn, *args):
