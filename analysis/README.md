@@ -18,6 +18,7 @@ the answers assert is in `metrics.json` or `backend_benchmark*.json`.
 | `fig8_gpu_t4.png` | The measured GPU crossover on a Colab T4 (`plot_gpu_t4.py`) |
 | `xai_results.json` | Attribution numbers, symmetry decomposition, 4D xAI cost table |
 | `experiment_4d_results.json` | 4D experiment: both arms, count baseline, T4 benchmark |
+| `REPRODUCTION.md` | Corrected reproduction write-up (mirrored from the sibling checkout) |
 
 ## Regenerating the OSCD analysis
 

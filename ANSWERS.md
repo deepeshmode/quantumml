@@ -264,8 +264,14 @@ nor embedding type. Two concrete findings from the training history
   epoch 10. A third of the run produced no generalisation.
 
 And from `analysis/fig3_threshold.png`: **0.5 is not the right operating point.**
-Sweeping the threshold gives F1 0.197 at 0.69, versus 0.153 at 0.5 — a 29 %
-relative improvement for a one-line change and no retraining.
+Sweeping the threshold gives F1 0.197 at 0.69, versus 0.153 at 0.5 — no
+retraining required. Applied at full resolution (2026-08-03) the trade is
+explicit: false alarms drop 10× (429,335 → 42,734) and precision rises
+0.087 → 0.217, but recall falls 0.629 → 0.181. The F1-optimal point turns a
+flag-everything detector into a conservative one; which side of that trade
+is right depends on whether the mission needs cueing (recall) or triage
+(precision), so both operating points are reported rather than one declared
+better.
 
 ## 5) For hyperspectral, were limited band counts tested for change detection?
 
@@ -373,12 +379,19 @@ tractable case, 8 angle-encoded features:
 ## Open items
 
 1. Re-score against Daudt's baseline on the natural distribution — the current
-   comparison is not valid.
-2. Add checkpoint selection; recover the ~0.9 pp thrown away at epoch 20.
-3. Move the operating point off 0.5, or calibrate it.
-4. Fix the hardcoded `initial_layer_weights` so qubit count can be swept on OSCD.
-5. Make the initial RY layer trainable.
+   comparison is not valid. *(still open)*
+2. ~~Add checkpoint selection~~ — **done 2026-08-03**: `src/pixel_level/
+   train.py` carries a local patch saving the best-val model per epoch;
+   a checkpointed retraining run is in progress.
+3. ~~Move the operating point off 0.5~~ — **measured 2026-08-03**: see the
+   threshold trade above; both operating points reported.
+4. Fix the hardcoded `initial_layer_weights` so qubit count can be swept on
+   OSCD. *(fixed in the 4D experiment's models; still present upstream)*
+5. Make the initial RY layer trainable. *(done in the 4D experiment's models;
+   still zero-constant upstream)*
 6. Share one PCA basis across both timestamps, and use `transform` at
-   evaluation.
+   evaluation. *(done in the 4D experiment's Arm A; still per-date refit
+   upstream)*
 7. Introduce spatial context (`PATCH_SIDE > 1`) — the single largest expected
-   gain.
+   gain for the 2D task. *(still open; the 4D experiment adds spatial context
+   volumetrically instead)*

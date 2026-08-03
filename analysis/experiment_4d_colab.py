@@ -762,6 +762,8 @@ def main():
         arm_a["balanced_resample"] = balanced_view(probs, yte, rng)
         arm_a.update(wires=8, device=qdev_name, embedding="angle (paper)",
                      n_params=sum(p.numel() for p in model.parameters()))
+        torch.save(model.state_dict(), "arm_a_weights.pt")
+        arm_a["weights_file"] = "arm_a_weights.pt"
         results["arm_a"] = arm_a
         flush(results)
         print(f"  natural: acc {arm_a['accuracy']:.3f}  P {arm_a['precision']:.3f}  "
@@ -788,6 +790,8 @@ def main():
         arm_b.update(wires=n_wires, device=qdev_name, embedding="amplitude",
                      stateprep_cnots_hw=2 ** n_wires - n_wires - 1,
                      n_params=sum(p.numel() for p in model.parameters()))
+        torch.save(model.state_dict(), "arm_b_weights.pt")
+        arm_b["weights_file"] = "arm_b_weights.pt"
         results["arm_b"] = arm_b
         flush(results)
         print(f"  QNN: acc {arm_b['accuracy']:.3f}  F1 {arm_b['f1']:.3f}   |   "
@@ -801,7 +805,7 @@ def main():
         widths.append(max(1, math.ceil(math.log2(cfg["dates"] * cfg["res"] ** 3))))
     results["benchmark"] = micro_benchmark(widths, torch)
     flush(results)
-    print(f"\nwrote {RESULTS_JSON} — download this and hand it back")
+    print(f"\nwrote {RESULTS_JSON} — download it AND the arm_*_weights.pt files")
 
 
 if __name__ == "__main__":

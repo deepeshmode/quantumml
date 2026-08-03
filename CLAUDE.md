@@ -7,9 +7,10 @@ things.
 ## Hard rule: source boundary
 
 Only open sources go in this repo. Pavia University via the HybridSN repo,
-arXiv:2503.08962v3, Zenodo 14784888. **Nothing from the NGA internal share** —
-no data, no figures, no numbers, no paraphrase. This repo is public. If a task
-seems to need internal material, stop and ask rather than working around it.
+arXiv:2503.08962v3, Zenodo 14784888. **Nothing from non-public or internal
+sources** — no data, no figures, no numbers, no paraphrase. This repo is
+public. If a task seems to need non-public material, stop and ask rather than
+working around it.
 
 ## Environment
 
